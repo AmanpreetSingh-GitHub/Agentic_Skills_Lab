@@ -1,0 +1,45 @@
+
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Local agent memory and generated data
+.agent/
+.agents/
+.agent-framework/
+.harness/
+.memory/
+memory/
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Microsoft Agent Framework generated file memory
+agent-file-memory/
