@@ -34,7 +34,7 @@ def create_tracing_middleware(telemetry: WorkflowTelemetry):
         elif "get_agreement" in tool_name:
             telemetry.record_mcp_tool(tool_name)
             print(f"Agent MCP tool call: {tool_name}")
-        
+
         elif "calculate_financial_exposure" in tool_name:
             telemetry.record_mcp_tool(tool_name)
             telemetry.calculator_result = context.result

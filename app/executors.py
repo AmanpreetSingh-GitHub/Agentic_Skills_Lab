@@ -274,7 +274,7 @@ class FinancialRiskExecutor(Executor):
                 response.text,
                 FinancialRiskResult,
             )
-            
+
             validate_financial_risks(handoff.clauses, result)
 
             # Require an observed calculator invocation.
