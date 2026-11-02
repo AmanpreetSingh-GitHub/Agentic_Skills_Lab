@@ -11,19 +11,38 @@ Identify relevant clauses in an agreement so they can be used by other analysis 
 
 ## Instructions
 
-1. Read the agreement text provided.
-2. Understand the user's question.
-3. Identify clauses relevant to the question.
-4. Classify each clause into a category:
+1. Read the complete agreement provided.
+2. Identify the analysis objective:
+   - If a specific question is provided, select clauses relevant to it.
+   - If no specific question is provided, identify material contractual
+     clauses relevant to financial, liability, termination, compliance,
+     and operational analysis.
+3. Classify each selected clause into one category:
    - Financial
    - Liability
    - Termination
    - Compliance
    - Operational
    - Other
-5. Preserve the original clause wording.
-6. Record the clause number or section reference, if available.
-7. Explain briefly why each clause is relevant.
+4. Preserve the exact original wording of each selected clause.
+
+5. Record only the numeric section identifier in the
+   `section` field. For example, use "4.1", not "Section 4.1".
+
+6. Briefly explain why each selected clause is relevant.
+
+7. Extract only operative contractual clauses that establish
+   rights, obligations, restrictions, or contractual protections.
+
+8. Exclude illustrative examples, assumptions, and hypothetical
+   financial scenarios from the extracted clauses, even if they
+   contain useful figures for later analysis.
+
+9. Preserve the exact original wording of selected clauses.
+
+10. Do not perform risk scoring, financial calculations, or
+    compliance assessment. Leave those tasks to other skills.
+
 
 ## Output
 

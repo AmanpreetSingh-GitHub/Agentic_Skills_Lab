@@ -1,94 +1,111 @@
-
 # Agentic Skills Lab
 
-### One Agent. Multiple Skills. Multiple MCP Tools.
+### One Agent. Three Skills. Two MCP Tools. Five Workflow Stages.
 
-A practical demonstration of how **Microsoft Agent Framework (MAF)**, **Agent Skills**, and **Model Context Protocol (MCP)** can work together to analyze supplier agreements.
+A practical demonstration of how **Microsoft Agent Framework (MAF)**, **Agent Skills**, and **Model Context Protocol (MCP)** can work together to analyze supplier agreements through a controlled workflow.
 
-This repository supports Episode 1 of The Agentic Evolution Paradox and provides a foundation for future agentic architecture experiments.
+This repository supports Episode 1 of **The Agentic Evolution Paradox**.
 
-## 1. What This Demo Shows
+## 1. Purpose
 
-The project uses:
+This experiment explores a central architectural question:
 
-- One MAF agent
-- Three specialized Agent Skills
-- Two MCP tools
-- A deterministic, sequential workflow
-- Agent-driven MCP tool invocation
+**How much specialized work can one AI agent perform using reusable skills, MCP tools, and controlled execution before separate specialized agents become necessary?**
 
-The goal is to demonstrate how one agent can perform multiple specialized tasks without requiring a separate agent for every task.
+The goal is to demonstrate a working design, not to prove that a single-agent architecture is universally better than a multi-agent architecture.
 
 ## 2. Architecture
 
+The application uses:
+
+- One logical MAF agent
+- Three specialized Agent Skills
+- Two MCP tools
+- Five sequential workflow stages
+- Fresh agent sessions for analysis stages
+- Structured Pydantic handoffs
+- Deterministic validation
+- Stage-level telemetry
+- A final report assembled without an additional LLM call
+
+### Workflow
+
 ```text
-                 ONE MAF AGENT
-                       |
-              MCP Tool Discovery
-                       |
-          +------------+------------+
-          |                         |
-     get_agreement        calculate_financial_exposure
-          |                         |
-          +------------+------------+
-                       |
+                ONE LOGICAL MAF AGENT
+                          |
+                   MAF WorkflowBuilder
+                          |
+                          v
                 Agreement Retrieval
-                       |
-                       v
-              Clause Extraction
-              [clause-extraction]
-                       |
-                       v
-               Financial Risk
-               [financial-risk]
-                       |
-                       v
-             Compliance Analysis
-             [compliance-analysis]
-                       |
-                       v
-               Final Report
+                   MCP: get_agreement
+                          |
+                          v
+                  Clause Extraction
+                Skill: clause-extraction
+                          |
+                          v
+                   Financial Risk
+                  Skill: financial-risk
+              MCP: calculate_financial_exposure
+                          |
+                          v
+                 Compliance Analysis
+                Skill: compliance-analysis
+                          |
+                          v
+                     Final Report
+                Deterministic Python
+                          |
+                          v
+              AgreementAnalysisReport
 ```
 
-Python controls the stage sequence. The agent loads the named skill for each stage and decides whether to invoke an available MCP tool.
+The agent performs specialized tasks by loading the appropriate skills. MAF WorkflowBuilder controls stage execution and handoffs.
 
-Both MCP tools are made available to each stage. Tool availability does not mean a tool is automatically executed.
+The final reporting stage does not create another agent or make an additional LLM call.
 
 ## 3. Project Structure
 
 ```text
 agentic-skills-lab/
-├── main.py
-├── mcp_server.py
-├── requirements.txt
-├── .gitignore
-├── README.md
-├── data/
-│   └── supplier_agreement.txt
-└── skills/
-    ├── clause-extraction/
-    │   └── SKILL.md
-    ├── financial-risk/
-    │   └── SKILL.md
-    └── compliance-analysis/
-        └── SKILL.md
+|-- app/
+|   |-- __init__.py
+|   |-- agent_factory.py
+|   |-- executors.py
+|   |-- models.py
+|   |-- telemetry.py
+|   |-- validators.py
+|   `-- workflow.py
+|-- data/
+|   `-- supplier_agreement.txt
+|-- skills/
+|   |-- clause-extraction/
+|   |   `-- SKILL.md
+|   |-- financial-risk/
+|   |   `-- SKILL.md
+|   `-- compliance-analysis/
+|       `-- SKILL.md
+|-- mcp_server.py
+|-- requirements.txt
+|-- README.md
+`-- .gitignore
 ```
 
 ## 4. Technologies
 
-- Python
+- Python 3.11
 - Microsoft Agent Framework
 - OpenAI integration for MAF
 - Agent Skills
-- Model Context Protocol (MCP)
+- Model Context Protocol
+- Pydantic structured models
+- MAF WorkflowBuilder
 
-Tested package versions are pinned in `requirements.txt`.
+Dependency versions are pinned in `requirements.txt`.
 
 ## 5. Setup
 
-Create and activate a Python virtual environment.
-
-On Windows PowerShell:
+Create a Python virtual environment:
 
 ```powershell
 python -m venv .venv
@@ -101,118 +118,153 @@ Install dependencies:
 python -m pip install -r requirements.txt
 ```
 
-Configure your OpenAI API key in your environment:
+Configure the OpenAI API key:
 
 ```powershell
 $env:OPENAI_API_KEY = "YOUR_API_KEY"
 ```
 
-Replace `YOUR_API_KEY` with your own key. Never commit an actual API key to GitHub.
+Configure an available OpenAI model according to the application's model configuration.
 
-The demo requires access to the OpenAI model configured in your environment or application.
+Never commit API keys or other secrets.
 
-## 6. Run the Demo
+## 6. Run the Workflow
+
+From the project root:
 
 ```powershell
-python main.py
+python -m app.workflow
 ```
 
-The application will:
+The workflow will:
 
-1. Connect to the local MCP server and discover its tools.
-2. Retrieve the sample supplier agreement using an agent-selected MCP tool.
-3. Load the Clause Extraction skill and extract contractual clauses.
+1. Discover the available MCP tools.
+2. Retrieve the supplier agreement.
+3. Load the Clause Extraction skill and extract relevant clauses.
 4. Load the Financial Risk skill and assess financial implications.
-5. Invoke the financial exposure calculator when sufficient numerical inputs are available.
+5. Invoke the financial exposure calculator when appropriate.
 6. Load the Compliance Analysis skill and identify supported concerns.
-7. Produce a consolidated agreement analysis report.
+7. Assemble a structured final report.
+8. Display stage-level execution telemetry.
 
 ## 7. Agent Skills
 
 ### Clause Extraction
 
-Identifies relevant contractual clauses, preserving their section references and supporting text.
+Identifies contractual clauses and preserves their original wording and section references.
 
 ### Financial Risk
 
-Evaluates financial implications and uses the MCP calculator when the required inputs are available.
+Assesses contractual financial risks, business impacts, and potential exposure.
 
 ### Compliance Analysis
 
-Identifies potential compliance concerns without treating missing information as proof of a violation.
+Identifies potential compliance concerns while distinguishing missing contractual provisions from proven violations.
+
+Each skill provides specialized instructions to the same logical agent.
 
 ## 8. MCP Tools
 
 ### get_agreement
 
-Retrieves a supplier agreement from the local `data` directory.
+Retrieves the sample supplier agreement from the local data directory.
 
 ### calculate_financial_exposure
 
-Calculates the difference between an estimated loss and a liability cap based on fees paid during the previous 12 months.
+Calculates illustrative financial exposure using supported numerical inputs.
 
-The calculation is illustrative and does not determine legal recoverability.
+For the supplied example:
 
-## 9. Demonstrated Behavior
-
-Two scenarios were tested.
-
-**Scenario A: Financial inputs missing**
-
-The agent loaded the Financial Risk skill but did not invoke the calculator because the required numerical inputs were unavailable.
-
-**Scenario B: Financial inputs available**
-
-The sample agreement included explicitly hypothetical financial values:
-
-- Fees paid in the previous 12 months: INR 2,000,000
+- Fees paid during the previous 12 months: INR 2,000,000
 - Estimated loss: INR 3,500,000
 - Amount above the liability cap: INR 1,500,000
 
-The agent invoked `calculate_financial_exposure` and distinguished the hypothetical calculation from actual contractual exposure.
+These values are hypothetical. The calculation does not establish actual legal recoverability.
 
-These tests demonstrate observed behavior in the sample runs. They do not establish statistical reliability or production readiness.
+## 9. Structured Handoffs and Validation
 
-## 10. Design Decisions
+The workflow uses Pydantic models to exchange structured outputs between stages.
 
-**One agent, multiple skills**
+Key models include:
 
-Specialized analysis is organized into reusable skills rather than separate agents.
+- AgreementDocument
+- ClauseExtractionResult
+- FinancialRiskResult
+- ComplianceAnalysisResult
+- AgreementAnalysisReport
 
-**Deterministic workflow**
+Handoff models preserve the validated outputs required by subsequent stages.
 
-Python controls the order of the stages to ensure predictable execution.
+Deterministic validation checks stage results before they proceed through the workflow.
 
-**Agent-driven tool invocation**
+## 10. Execution Telemetry
 
-Both MCP tools are discovered and made available. The agent determines which tool to invoke based on its task.
+The application records:
 
-**Explicit workflow state**
+- Stage execution status
+- Stage duration
+- Observed Agent Skill loading
+- Observed MCP tool calls
+- Execution failures
 
-A Python dictionary passes outputs between stages. Fresh MAF sessions isolate the conversational context of each stage.
+Telemetry provides visibility into how the workflow executed.
 
-**No long-term memory requirement**
+It does not independently prove the factual accuracy of every model-generated conclusion.
 
-The demo does not require persistent agent memory or a vector database.
+## 11. Demonstrated Results
 
-## 11. Limitations
+A successful five-stage execution produced:
 
-This is an educational proof of concept, not a production-grade contract review system.
+| Stage | Result |
+|---|---|
+| Agreement Retrieval | PASS |
+| Clause Extraction | PASS |
+| Financial Risk | PASS |
+| Compliance Analysis | PASS |
+| Final Report | PASS |
 
-It does not include:
+The final report included the original agreement, extracted clauses, financial risk findings, hypothetical financial exposure, and compliance assessment.
 
-- A comprehensive legal or regulatory knowledge base
-- Human approval and review workflows
+The Final Report stage completed without additional Agent Skill or MCP tool calls.
+
+Earlier exploratory runs also demonstrated that the agent could avoid invoking the financial calculator when required numerical inputs were unavailable.
+
+## 12. Design Decisions
+
+**One logical agent:** Specialized behavior is supplied through reusable skills rather than separate agent identities.
+
+**Controlled workflow:** MAF WorkflowBuilder determines stage sequencing.
+
+**Fresh sessions:** Each agent-driven stage uses a fresh session to limit conversational context carryover.
+
+**Structured handoffs:** Pydantic models carry validated information between stages.
+
+**Deterministic validation:** Python checks structured results rather than relying exclusively on model self-assessment.
+
+**MCP tool integration:** Tools are discovered and exposed to the agent, which invokes them according to the task.
+
+**Deterministic final report:** Python assembles previously validated outputs without another model invocation.
+
+## 13. Limitations
+
+This is an architectural proof of concept, not a production contract-review system.
+
+It does not establish:
+
+- Statistical reliability across large contract datasets
+- Superiority over specialized multi-agent systems
+- Independent agent identities
+- Production-grade security and access controls
+- Comprehensive legal or regulatory analysis
 - Persistent audit storage
-- Large-scale evaluation
-- Production security and access controls
+- Human approval workflows
 
-Outputs should not be treated as legal advice.
+The demonstration uses a limited sample agreement and should not be treated as legal advice.
 
-## 12. Related Series
+## 14. Related Series
 
 **The Agentic Evolution Paradox**
 
-Exploring when adding more agents, tools, and architectural complexity improves outcomes, and when simpler designs may be more effective.
+Exploring when additional agents, tools, and architectural complexity improve outcomes, and when simpler architectures can provide similar capabilities.
 
-Episode 1 focuses on the relationship between **one agent, multiple skills, and MCP tools**.
+Episode 1 investigates **one agent with multiple skills and MCP tools** as a foundation for future architectural comparisons.

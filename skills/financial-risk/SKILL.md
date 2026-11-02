@@ -1,6 +1,6 @@
 ---
 name: financial-risk
-description: Analyze financial risks in enterprise agreements, including payment obligations, pricing, penalties, liability caps, and financial exposure. Use when the user asks about financial or commercial risks.
+description: Analyze financial and commercial risks in enterprise agreements, including payment obligations, liability caps, and financial exposure.
 ---
 
 # Financial Risk Analysis Skill
@@ -11,34 +11,71 @@ Identify and explain financial risks in an agreement.
 
 ## Instructions
 
-1. Read the agreement and understand the user's question.
-2. Identify clauses that create financial obligations or exposure.
-3. Use relevant clauses identified by the Clause Extraction Skill when available.
-4. Analyze risks involving:
-   - Payment terms
+1. Read the original agreement and understand the analysis objective.
+
+2. Use the clauses supplied by the Clause Extraction stage.
+   Do not invent additional contractual obligations.
+
+3. Analyze relevant financial and commercial risks, including:
+   - Payment terms and deadlines
    - Pricing and price increases
-   - Penalties
-   - Liability limits
+   - Penalties and financial commitments
+   - Liability caps and limitations
    - Minimum commitments
-   - Termination costs
-5. Explain each risk in simple business language.
-6. Identify missing information that could affect the assessment.
+   - Termination costs and financial consequences
+
+4. For each relevant clause:
+   - Identify the financial risk.
+   - Explain its potential business impact.
+   - Assign a risk level: Low, Medium, High, or Undetermined.
+   - Recommend a practical action.
+   - Explain the reasoning behind the assessment.
+
+5. When the agreement provides sufficient numerical inputs
+   for a financial exposure calculation:
+   - Use the MCP tool `calculate_financial_exposure`.
+   - Extract the numerical inputs from the original agreement.
+   - Pass those values to the tool.
+   - Use the tool's returned calculation in the analysis.
+   - Do not invent or substitute numerical inputs.
+
+6. Distinguish contractual facts from hypothetical scenarios.
+   If financial figures are explicitly hypothetical, label
+   the resulting exposure as hypothetical.
+
+7. If required financial inputs are missing, do not invent
+   values or perform a fabricated calculation.
+   Explain that the exposure cannot be quantified.
+
+8. Explain risks and calculations in clear business language.
+
+## Rules
+
+- Base contractual findings only on the supplied agreement.
+- Preserve the section identifiers supplied by Clause Extraction.
+- Never invent clauses, obligations, financial amounts, or tool results.
+- Do not present hypothetical figures as actual financial losses.
+- Do not treat missing information as proof that a protection is absent.
+- If evidence is insufficient, mark the risk level as Undetermined.
+- Do not provide definitive legal conclusions.
+- Leave compliance assessment to the Compliance Analysis skill.
 
 ## Output
 
 For each financial risk, provide:
 
-- Clause reference
+- Clause section identifier
 - Risk identified
-- Why it matters
-- Risk level: Low, Medium, or High
+- Potential business impact
+- Risk level: Low, Medium, High, or Undetermined
 - Recommended action
 
-## Rules
+For financial exposure, provide:
 
-- Base findings only on the agreement provided.
-- Never invent financial values or contractual obligations.
-- Explain the reason for each risk level.
-- Do not treat a missing clause as proof that a protection is absent.
-- If evidence is insufficient, mark the risk level as Undetermined.
-- Do not provide definitive legal conclusions.
+- Fees paid during the previous 12 months
+- Estimated loss
+- Liability cap
+- Amount above the liability cap
+- Currency
+- Whether the figures are hypothetical
+- Explanation of the calculation and its limitations
