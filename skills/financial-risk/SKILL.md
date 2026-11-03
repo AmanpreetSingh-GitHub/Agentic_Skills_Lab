@@ -26,10 +26,9 @@ Identify and explain financial risks in an agreement.
 
 4. For each relevant clause:
    - Identify the financial risk.
-   - Explain its potential business impact.
+   - Explain its potential business impact and the basis for the assessment.
    - Assign a risk level: Low, Medium, High, or Undetermined.
    - Recommend a practical action.
-   - Explain the reasoning behind the assessment.
 
 5. When the agreement provides sufficient numerical inputs
    for a financial exposure calculation:
@@ -37,7 +36,6 @@ Identify and explain financial risks in an agreement.
    - Extract the numerical inputs from the original agreement.
    - Pass those values to the tool.
    - Use the tool's returned calculation in the analysis.
-   - Do not invent or substitute numerical inputs.
 
 6. Distinguish contractual facts from hypothetical scenarios.
    If financial figures are explicitly hypothetical, label
@@ -45,15 +43,15 @@ Identify and explain financial risks in an agreement.
 
 7. If required financial inputs are missing, do not invent
    values or perform a fabricated calculation.
-   Explain that the exposure cannot be quantified.
-
-8. Explain risks and calculations in clear business language.
+   Set `exposure` to null and explain why it cannot be quantified.
+   Do not call the calculator.
 
 ## Rules
 
 - Base contractual findings only on the supplied agreement.
 - Preserve the section identifiers supplied by Clause Extraction.
 - Never invent clauses, obligations, financial amounts, or tool results.
+- Do not substitute unsupported inputs into the calculator.
 - Do not present hypothetical figures as actual financial losses.
 - Do not treat missing information as proof that a protection is absent.
 - If evidence is insufficient, mark the risk level as Undetermined.
@@ -70,6 +68,9 @@ For each financial risk, provide:
 - Risk level: Low, Medium, High, or Undetermined
 - Recommended action
 
+Use the `business_impact` field to explain the assessment basis;
+there is no separate reasoning field in the structured output.
+
 For financial exposure, provide:
 
 - Fees paid during the previous 12 months
@@ -79,3 +80,6 @@ For financial exposure, provide:
 - Currency
 - Whether the figures are hypothetical
 - Explanation of the calculation and its limitations
+
+If inputs are insufficient, return `exposure: null` and explain the limitation
+in `exposure_explanation`.

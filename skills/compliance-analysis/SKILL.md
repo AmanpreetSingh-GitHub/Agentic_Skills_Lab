@@ -7,70 +7,36 @@ description: Analyze compliance obligations, contractual protections, and potent
 
 ## Purpose
 
-Identify compliance-related obligations, missing protections,
-and potential compliance gaps in an agreement.
+Identify evidence-based compliance obligations and potential contractual protection gaps in the supplied agreement.
 
 ## Instructions
 
-1. Read the original agreement and understand the analysis objective.
-
-2. If a specific compliance question is provided, focus on that question.
-   Otherwise, perform a general compliance review of the supplied agreement.
-
-3. Use extracted clauses from the Clause Extraction stage when available.
-   Refer to the original agreement to verify supporting evidence.
-
-4. Examine relevant areas, including:
-   - Regulatory and contractual compliance obligations
-   - Data protection and privacy
-   - Confidentiality
-   - Information security
-   - Audit rights and recordkeeping
-   - Subcontractor obligations
-   - Compliance reporting
-
-5. Identify:
-   - Explicit compliance-related contractual obligations
-   - Unclear or incomplete compliance provisions
-   - Important protections not addressed in the supplied text
-
-6. Distinguish missing provisions from proven violations.
-   A missing clause is a potential contractual gap, not evidence
-   that either party has violated a law or regulation.
-
-7. For each finding:
-   - Explain the concern in clear business language.
-   - Identify the supporting agreement text when available.
-   - Explain the potential business impact.
-   - Recommend a practical follow-up action.
-
-8. For findings tied to a specific clause, use only its numeric
-   section identifier, such as "7.2".
-
-9. For findings about protections absent from the supplied agreement,
-   use null for both section and supporting_text.
-
-10. Do not perform financial risk scoring or financial calculations.
-    Leave those responsibilities to the Financial Risk skill.
+1. Read the original agreement. If a specific compliance question is provided, focus on it; otherwise perform a general review.
+2. Use the extracted clauses when available, and check the original agreement for supporting evidence.
+3. Consider relevant areas such as privacy, confidentiality, information security, audit rights, recordkeeping, subcontractors, regulatory obligations, and compliance reporting.
+4. Distinguish explicit obligations, unclear provisions, and protections not addressed in the supplied text. Missing provisions are potential contractual gaps, **not** proof of a legal or regulatory violation.
+5. For each finding, explain the concern, potential business impact, and a practical follow-up action. Include supporting agreement text when available.
+6. For findings tied to a clause, use its numeric section identifier (for example, `7.2`), and ensure it refers to a section present in the extracted clauses.
+7. For protections absent from the supplied agreement, set both `section` and `supporting_text` to `null`. Do not invent supporting text.
+8. Provide an overall compliance assessment that clearly identifies uncertainty and limits of the available evidence.
+9. Do not perform financial risk scoring or exposure calculations; those belong to the Financial Risk Skill.
 
 ## Output
 
-For each compliance finding, provide:
+Return findings containing:
 
-- Section identifier, or null
-- Compliance concern
-- Supporting agreement text, or null
-- Potential business impact
-- Recommended action
+- `section`: numeric section identifier or `null`
+- `concern`: evidence-based compliance concern or potential gap
+- `supporting_text`: agreement text or `null`
+- `potential_impact`: potential business impact
+- `recommended_action`: practical follow-up
 
-Also provide an overall compliance assessment.
+Also return `overall_assessment`.
 
 ## Rules
 
-- Base findings only on the supplied agreement and available evidence.
+- Base findings on the supplied agreement and available evidence.
 - Never invent regulations, obligations, clauses, or supporting text.
-- Do not assume a missing clause means legal non-compliance.
-- Distinguish potential risks from established violations.
-- If the agreement provides insufficient evidence, say so.
-- Do not make definitive legal conclusions.
+- Do not equate missing contractual provisions with established non-compliance.
 - Do not treat hypothetical financial figures as contractual obligations.
+- Do not make definitive legal conclusions.

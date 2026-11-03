@@ -1,7 +1,7 @@
 """
 agent_factory.py
 
-Creates the single Microsoft Agent Framework agent and connects its middleware events to workflow telemetry.
+Creates the shared Microsoft Agent Framework agent and records Skill and MCP tool calls.
 """
 
 from pathlib import Path
@@ -14,6 +14,7 @@ from agent_framework import (
 from agent_framework.openai import OpenAIChatClient
 
 from app.telemetry import WorkflowTelemetry
+
 
 def create_tracing_middleware(telemetry: WorkflowTelemetry):
 
@@ -37,11 +38,10 @@ def create_tracing_middleware(telemetry: WorkflowTelemetry):
 
         elif "calculate_financial_exposure" in tool_name:
             telemetry.record_mcp_tool(tool_name)
-            telemetry.calculator_result = context.result
-
             print(f"Agent MCP tool call: {tool_name}")
 
     return trace_tool_call
+
 
 def create_agreement_agent(
     project_folder: Path,
@@ -50,8 +50,6 @@ def create_agreement_agent(
     """Create one MAF agent with skills and telemetry middleware."""
 
     skills_folder = project_folder / "skills"
-
-    telemetry.calculator_result = None
 
     return create_harness_agent(
         client=OpenAIChatClient(),
@@ -71,7 +69,5 @@ def create_agreement_agent(
         disable_web_search=True,
         skills_paths=skills_folder,
         middleware=[create_tracing_middleware(telemetry)],
-        auto_approval_rules=[
-            SkillsProvider.read_only_tools_auto_approval_rule
-        ],
+        auto_approval_rules=[SkillsProvider.read_only_tools_auto_approval_rule],
     )

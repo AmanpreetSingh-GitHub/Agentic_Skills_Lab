@@ -21,15 +21,15 @@ def get_agreement(filename: str) -> str:
 
     # Reject paths outside the agreement folder.
     if Path(filename).name != filename or filename in (".", ".."):
-        return "Error: Provide a filename, not a file path."
+        raise ValueError("Provide a filename, not a file path.")
 
     if not filename.endswith(".txt"):
-        return "Error: Only .txt agreement files are supported."
+        raise ValueError("Only .txt agreement files are supported.")
 
     agreement_path = DATA_FOLDER / filename
 
     if not agreement_path.is_file():
-        return f"Error: Agreement '{filename}' was not found."
+        raise FileNotFoundError(f"Agreement '{filename}' was not found.")
 
     return agreement_path.read_text(encoding="utf-8")
 

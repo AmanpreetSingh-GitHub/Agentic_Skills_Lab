@@ -1,13 +1,5 @@
 
-"""
-workflow.py
-
-Native Microsoft Agent Framework orchestration.
-
-Runs agreement retrieval and clause extraction using one
-shared agent, dynamically discovered MCP tools, and
-workflow-level telemetry.
-"""
+"""Run the five-stage supplier agreement workflow with Microsoft Agent Framework."""
 
 import asyncio
 import sys
@@ -27,26 +19,23 @@ from app.telemetry import WorkflowTelemetry
 
 
 async def main():
-    """Run the MAF workflow with telemetry enabled."""
+    """Execute the workflow and print its telemetry summary."""
 
     project_folder = Path(__file__).resolve().parent.parent
     server_path = project_folder / "mcp_server.py"
 
-    # One telemetry collector for the entire workflow.
     telemetry = WorkflowTelemetry()
 
-    # Exactly one MAF agent for all workflow stages.
     agent = create_agreement_agent(project_folder, telemetry)
 
     try:
-        # Keep the MCP connection open throughout execution.
+        # Keep the MCP connection open for every workflow stage.
         async with MCPStdioTool(
             name="agreement-tools",
             command=sys.executable,
             args=[str(server_path)],
             load_prompts=False,
         ) as mcp:
-
             tools = mcp.functions
 
             print("\n===== AVAILABLE MCP TOOLS =====")
@@ -69,7 +58,6 @@ async def main():
             )
 
             print("\n===== STARTING MAF WORKFLOW =====")
-
             events = await workflow.run("supplier_agreement.txt")
 
             for event in events:
@@ -78,7 +66,7 @@ async def main():
                     print(event.data)
 
     finally:
-        # Print traces even when the workflow fails.
+        # Print traces even if execution fails.
         telemetry.print_summary()
 
 

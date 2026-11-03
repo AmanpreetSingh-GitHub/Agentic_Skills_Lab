@@ -23,7 +23,12 @@ from app.models import (
     AgreementAnalysisReport,
 )
 from app.telemetry import WorkflowTelemetry
-from app.validators import validate_clauses, validate_financial_risks, validate_compliance
+from app.validators import (
+    validate_clauses,
+    validate_financial_risks,
+    validate_compliance,
+    validate_report,
+)
 
 
 def parse_json_response(response_text: str, model_type):
@@ -89,9 +94,25 @@ class RetrievalExecutor(Executor):
                     "Agreement retrieval returned empty text."
                 )
 
+            # Do not accept an error response or an unobserved retrieval as an agreement.
+            active_trace = self.telemetry._active
+            if active_trace is None or not any(
+                "get_agreement" in tool_name
+                for tool_name in active_trace.mcp_tools
+            ):
+                raise RuntimeError(
+                    "Agreement retrieval failed: no MCP get_agreement call was observed."
+                )
+
+            agreement_text = response.text.strip()
+            if agreement_text.casefold().startswith(("error:", "tool error:")):
+                raise RuntimeError(
+                    f"Agreement retrieval returned an error: {agreement_text}"
+                )
+
             document = AgreementDocument(
                 filename=filename,
-                content=response.text,
+                content=agreement_text,
             )
 
             self.telemetry.finish_stage()
@@ -277,7 +298,7 @@ class FinancialRiskExecutor(Executor):
 
             validate_financial_risks(handoff.clauses, result)
 
-            # Require an observed calculator invocation.
+            # A reported exposure must be backed by an observed MCP calculation.
             active_trace = self.telemetry._active
 
             if active_trace is None:
@@ -288,9 +309,10 @@ class FinancialRiskExecutor(Executor):
                 for tool_name in active_trace.mcp_tools
             )
 
-            if not calculator_called:
+            if result.exposure is not None and not calculator_called:
                 raise RuntimeError(
-                    "Financial Risk failed: required MCP calculator was not called."
+                    "Financial Risk failed: exposure was reported without "
+                    "an observed MCP calculator call."
                 )
 
             handoff_to_compliance = FinancialRiskHandoff(
@@ -427,6 +449,7 @@ class FinalReportExecutor(Executor):
                 compliance=handoff.compliance,
             )
 
+            validate_report(report)
             self.telemetry.finish_stage()
             await ctx.yield_output(report)
 
